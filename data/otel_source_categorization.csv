@@ -1,0 +1,4 @@
+source_type,severity,count
+app,CRITICAL,1
+app,LOW,2
+app,MEDIUM,1

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "accounting-my-otel-demo",
+    "name": "accounting-my-otel-demo",
+    "path": "kubernetes-deployment://my-otel-demo/accounting",
+    "type": "kubernetes",
+    "createdAt": "2025-06-12T12:35:02.843Z",
+    "updatedAt": "2025-06-12T12:35:02.843Z",
+    "vulnerabilities": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "lastScan": "2025-06-12T12:35:54.017Z"
+  }
+]

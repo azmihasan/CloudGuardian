@@ -1,10 +1,17 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Requirements
+
+Node.js version
+18.18.0 || ^19.8.0 || >= 20.0.0
+
 ## Getting Started
 
 First, run the development server:
 
 ```bash
+npm install
+
 npm run dev
 # or
 yarn dev

@@ -30,6 +30,7 @@ export default function RepoSelector() {
 					description: "A web application built with Next.js",
 					html_url: "https://github.com/felixp33/ryon",
 					private: false,
+					selected: true,
 				},
 				{
 					id: 2,

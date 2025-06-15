@@ -1,0 +1,5 @@
+fixedVersion,installedVersion,lastModifiedDate,links,packagePURL,primaryLink,publishedDate,resource,score,severity,target,title,vulnerabilityID,source_type
+"7.26.10, 8.0.0-alpha.17",7.22.5,2025-03-11T20:15:18Z,[],pkg:npm/%40babel/runtime@7.22.5,https://avd.aquasec.com/nvd/cve-2025-27789,2025-03-11T20:15:18Z,@babel/runtime,6.2,MEDIUM,,Babel is a compiler for writing next generation JavaScript. When using ...,CVE-2025-27789,app
+"13.5.9, 14.2.25, 15.2.3, 12.3.5",15.2.1,2025-04-08T14:15:33Z,[],pkg:npm/next@15.2.1,https://avd.aquasec.com/nvd/cve-2025-29927,2025-03-21T15:15:42Z,next,9.1,CRITICAL,,nextjs: Authorization Bypass in Next.js Middleware,CVE-2025-29927,app
+15.2.2,15.2.1,2025-05-30T16:31:03Z,[],pkg:npm/next@15.2.1,https://avd.aquasec.com/nvd/cve-2025-48068,2025-05-30T04:15:48Z,next,4.3,LOW,,next.js: Information exposure in Next.js dev server due to lack of origin verification,CVE-2025-48068,app
+,2.0.1,2025-06-09T19:15:25Z,[],pkg:npm/brace-expansion@2.0.1,https://avd.aquasec.com/nvd/cve-2025-5889,2025-06-09T19:15:25Z,brace-expansion,3.1,LOW,,brace-expansion Regular Expression Denial of Service vulnerability,CVE-2025-5889,app

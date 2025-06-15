@@ -1,177 +1,141 @@
-// src/app/project/[id]/page.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { MockProjects } from "@/lib/mock-data";
-import { Change } from "@/types";
-import NewsAlertItem from "@/components/project/NewsAlertItem";
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import Navbar from '@/components/layout/Navbar';
+import { Project } from '@/types';
 
-export default function NewsAlertsPage() {
-	const router = useRouter();
-	const params = useParams();
-	const projectId = params?.id as string;
+export default function ProjectOverviewPage() {
+  const { id } = useParams();
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
-	// Find the current project
-	const project = MockProjects.find((p) => p.id === projectId);
+  useEffect(() => {
+    if (id) {
+      const fetchProject = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const response = await fetch(`/api/repositories/${id}`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch project: ${response.statusText}`);
+          }
+          const data: Project = await response.json();
+          setProject(data);
+        } catch (err) {
+          console.error('Error fetching project:', err);
+          setError('Could not load project details.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchProject();
+    }
+  }, [id]);
 
-	// State for filters
-	const [activeFilter, setActiveFilter] = useState<"all" | "security" | "auto" | "improvement">("all");
+  const handleRunSecurityAnalysis = async () => {
+    setAnalysisLoading(true);
+    setAnalysisResult(null);
+    try {
+      // This is a placeholder for your actual security measurement script endpoint
+      const response = await fetch(`/api/analyze-project/${id}`, {
+        method: 'POST',
+      });
 
-	// State for alerts
-	const [newsItems, setNewsItems] = useState<Change[]>([]);
+      if (!response.ok) {
+        throw new Error(`Failed to run analysis: ${response.statusText}`);
+      }
 
-	useEffect(() => {
-		if (project) {
-			// Combine all alerts from the project
-			const allAlerts: Change[] = [
-				...project.securityRecommendations,
-				...project.automaticChanges,
-				...project.improvementSuggestions,
-			];
+      const data = await response.json();
+      setAnalysisResult(data.message || 'Security analysis completed.');
+      // Optionally, update project data after analysis if it affects the overview
+    } catch (err) {
+      console.error('Error running security analysis:', err);
+      setAnalysisResult('Failed to run security analysis.');
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
 
-			setNewsItems(allAlerts);
-		}
-	}, [project]);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white">
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+          <p>Loading project...</p>
+        </main>
+      </div>
+    );
+  }
 
-	// Apply filters to news items
-	const filteredNewsItems = newsItems.filter((item) => {
-		if (activeFilter === "all") return true;
-		if (activeFilter === "security" && item.id.startsWith("sec")) return true;
-		if (activeFilter === "auto" && item.id.startsWith("auto")) return true;
-		if (activeFilter === "improvement" && item.id.startsWith("imp")) return true;
-		return false;
-	});
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white">
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+          <p className="text-red-500">Error: {error}</p>
+        </main>
+      </div>
+    );
+  }
 
-	// Handler for starting the workflow process (moving to in-progress)
-	const handleStartWorkflow = (changeId: string) => {
-		// In a real app, this would move the item to In Progress state in the backend
-		// For now, we'll just redirect to the in-progress page
-		router.push(`/project/${projectId}/in-progress`);
-	};
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white">
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+          <p>Project not found.</p>
+        </main>
+      </div>
+    );
+  }
 
-	// Handler to dismiss an alert
-	const handleDismiss = (changeId: string) => {
-		setNewsItems((prevItems) => prevItems.filter((item) => item.id !== changeId));
-	};
+  return (
+    <div className="min-h-screen bg-gray-900 text-white">
+      <Navbar />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Project: {project.name}</h1>
+          <button
+            onClick={handleRunSecurityAnalysis}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={analysisLoading}
+          >
+            {analysisLoading ? 'Analyzing...' : 'Run Security Analysis'}
+          </button>
+        </div>
 
-	if (!project) {
-		return <div className="p-4 text-white">Project not found</div>;
-	}
+        {analysisResult && (
+          <p className={`mt-4 ${analysisResult.startsWith('Error') ? 'text-red-500' : 'text-green-500'}`}>
+            {analysisResult}
+          </p>
+        )}
 
-	return (
-		<div>
-			<div className="flex justify-between items-center mb-6">
-				<h2 className="text-2xl font-bold text-white">News & Alerts</h2>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Overview</h2>
+          <p className="text-gray-300 mb-2">Owner: {project.owner}</p>
+          <p className="text-gray-300 mb-2">Repository URL: <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{project.repoUrl}</a></p>
+          <p className="text-gray-300 mb-2">Last Updated: {project.lastUpdated}</p>
+          {/* Add more project details here as needed */}
 
-				<div className="flex space-x-2">
-					<div className="relative">
-						<select
-							className="bg-gray-800 border border-gray-700 text-white rounded-md px-4 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-							value={activeFilter}
-							onChange={(e) => setActiveFilter(e.target.value as any)}
-						>
-							<option value="all">All Alerts</option>
-							<option value="security">Security Issues</option>
-							<option value="auto">Auto-fix Issues</option>
-							<option value="improvement">Improvements</option>
-						</select>
-						<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-							<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-							</svg>
-						</div>
-					</div>
-
-					<button
-						onClick={() => {
-							// Apply all fixes at once would move all items to in-progress
-							router.push(`/project/${projectId}/in-progress`);
-						}}
-						className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-					>
-						Apply All Fixes
-					</button>
-				</div>
-			</div>
-
-			{/* Summary section */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-				<div className="bg-gray-800 rounded-lg p-4">
-					<div className="text-sm font-medium text-gray-400 mb-1">Security Issues</div>
-					<div className="flex items-baseline">
-						<span className="text-2xl font-semibold text-red-500">{project.securityRecommendations.length}</span>
-						{project.securityRecommendations.length > 0 && (
-							<span className="ml-2 text-xs text-gray-400">
-								{project.securityRecommendations.filter((r) => r.severity === "High").length} high priority
-							</span>
-						)}
-					</div>
-				</div>
-
-				<div className="bg-gray-800 rounded-lg p-4">
-					<div className="text-sm font-medium text-gray-400 mb-1">Auto-fixes</div>
-					<div className="flex items-baseline">
-						<span className="text-2xl font-semibold text-green-500">{project.automaticChanges.length}</span>
-						{project.automaticChanges.length > 0 && (
-							<span className="ml-2 text-xs text-gray-400">Ready to apply</span>
-						)}
-					</div>
-				</div>
-
-				<div className="bg-gray-800 rounded-lg p-4">
-					<div className="text-sm font-medium text-gray-400 mb-1">Improvements</div>
-					<div className="flex items-baseline">
-						<span className="text-2xl font-semibold text-blue-500">{project.improvementSuggestions.length}</span>
-						{project.improvementSuggestions.length > 0 && (
-							<span className="ml-2 text-xs text-gray-400">Performance & code quality</span>
-						)}
-					</div>
-				</div>
-			</div>
-
-			{filteredNewsItems.length > 0 ? (
-				<div className="space-y-4">
-					{filteredNewsItems.map((change) => (
-						<NewsAlertItem
-							key={change.id}
-							change={change}
-							onAction={handleStartWorkflow}
-							onDismiss={handleDismiss}
-						/>
-					))}
-				</div>
-			) : (
-				<div className="text-center py-16 bg-gray-800 rounded-lg">
-					<svg
-						className="mx-auto h-12 w-12 text-gray-400"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-					</svg>
-					<h3 className="mt-2 text-lg font-medium text-white">All caught up!</h3>
-					<p className="mt-1 text-sm text-gray-400">
-						{activeFilter === "all"
-							? "There are no new alerts or recommendations for this project."
-							: `No ${
-									activeFilter === "security"
-										? "security issues"
-										: activeFilter === "auto"
-										? "auto-fix issues"
-										: "improvements"
-							  } found.`}
-					</p>
-					<button
-						onClick={() => setActiveFilter("all")}
-						className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-					>
-						{activeFilter === "all" ? "View In-Progress Changes" : "Show All Alerts"}
-					</button>
-				</div>
-			)}
-		</div>
-	);
-}
+          <h2 className="text-xl font-semibold mt-6 mb-4">Vulnerabilities (Summary)</h2>
+          {project.securityRecommendations.length > 0 ? (
+            <ul className="list-disc list-inside text-gray-300">
+              {/* This will need more detailed rendering based on actual vulnerability data */}
+              <li>Critical: {project.securityRecommendations.filter(rec => rec.id.startsWith("sec-critical")).length}</li>
+              <li>High: {project.securityRecommendations.filter(rec => rec.id.startsWith("sec-high")).length}</li>
+              <li>Medium: {project.securityRecommendations.filter(rec => rec.id.startsWith("sec-medium")).length}</li>
+              <li>Low: {project.securityRecommendations.filter(rec => rec.id.startsWith("sec-low")).length}</li>
+              <li>Unknown: {project.securityRecommendations.filter(rec => rec.id.startsWith("sec-unknown")).length}</li>
+            </ul>
+          ) : (
+            <p className="text-gray-400">No security recommendations available yet.</p>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+} 

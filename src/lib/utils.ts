@@ -1,5 +1,7 @@
 // lib/utils.ts
 import { Project, Change } from "@/types";
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
 
 /**
  * Formats a date for display
@@ -109,4 +111,8 @@ export function sortChangesByDate(changes: Change[]): Change[] {
 export function filterBySeverity(changes: Change[], severity?: "High" | "Medium" | "Low"): Change[] {
 	if (!severity) return changes;
 	return changes.filter((change) => change.severity === severity);
+}
+
+export function cn(...inputs: ClassValue[]) {
+	return twMerge(clsx(inputs))
 }

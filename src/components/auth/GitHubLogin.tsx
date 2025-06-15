@@ -1,6 +1,7 @@
 // components/auth/GitHubLogin.tsx
 import React from "react";
 import { GitHubIcon } from "../Icons";
+import Cookies from 'js-cookie';
 
 export default function GitHubLogin() {
 	// In a real application, this would redirect to the GitHub OAuth flow
@@ -12,6 +13,8 @@ export default function GitHubLogin() {
 		console.log("Redirecting to GitHub OAuth...");
 		// Mock redirect to callback page after small delay
 		setTimeout(() => {
+			// Set a mock auth token
+			Cookies.set('auth_token', 'mock_token', { expires: 7 }); // Expires in 7 days
 			window.location.href = "/auth/callback?code=mock_code";
 		}, 1000);
 	};

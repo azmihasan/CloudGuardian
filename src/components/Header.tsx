@@ -25,7 +25,7 @@ export default function Header() {
 								CloudGuardian
 							</Link>
 						</div>
-						<nav className="hidden sm:ml-6 sm:flex sm:space-x-8" aria-label="Global">
+						<nav className="flex sm:ml-6 sm:space-x-8" aria-label="Global">
 							<Link href="/" className={getLinkClassName("/")}>
 								Projects
 							</Link>

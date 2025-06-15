@@ -1,0 +1,6 @@
+Error
+Docker Image Security Analysis - not working
+
+Feature
+- Button to go back to home for discover project
+Integrate all kubernetes into one namespace, to identify project only based one namespace without separeting each kubernetes API. Works like trivy.
